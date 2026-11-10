@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Store, ShieldCheck, RefreshCw } from "lucide-react";
+import { Store, ShieldCheck, RefreshCw, Lock } from "lucide-react";
 
 interface HeaderProps {
   onRefresh: () => void;
@@ -9,6 +9,7 @@ interface HeaderProps {
   storeName?: string;
   lowStockCount: number;
   onOpenLowStock: () => void;
+  onLock?: () => void;
 }
 
 export default function Header({
@@ -17,6 +18,7 @@ export default function Header({
   storeName = "Apna Store",
   lowStockCount,
   onOpenLowStock,
+  onLock,
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 bg-[#0f766e] text-white px-4 py-3 shadow-md">
@@ -60,9 +62,18 @@ export default function Header({
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-teal-200" : ""}`} />
           </button>
+
+          {onLock && (
+            <button
+              onClick={onLock}
+              className="p-2 rounded-lg bg-white/10 text-white hover:bg-rose-500/30 active:scale-90 transition-all"
+              title="Lock Dashboard"
+            >
+              <Lock className="w-4 h-4 text-teal-200" />
+            </button>
+          )}
         </div>
       </div>
     </header>
   );
 }
-

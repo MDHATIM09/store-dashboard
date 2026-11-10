@@ -11,7 +11,8 @@ import LoginModal from "@/components/LoginModal";
 import { ProductItem, SaleRecord } from "@/lib/storeService";
 
 export default function Home() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthChecking, setIsAuthChecking] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [isNewSaleOpen, setIsNewSaleOpen] = useState(false);
 
@@ -23,14 +24,28 @@ export default function Home() {
 
   // Check auth on mount
   useEffect(() => {
-    const authStatus = sessionStorage.getItem("store_auth_unlocked");
-    if (authStatus === "true") {
-      setIsAuthenticated(true);
-    } else {
-      // By default open dashboard, can require pin if desired
-      setIsAuthenticated(true); // default unlocked for instant friction-free access
+    try {
+      const authStatus = sessionStorage.getItem("store_auth_unlocked");
+      if (authStatus === "true") {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch {
+      setIsAuthenticated(false);
+    } finally {
+      setIsAuthChecking(false);
     }
   }, []);
+
+  const handleLock = () => {
+    try {
+      sessionStorage.removeItem("store_auth_unlocked");
+    } catch {
+      // ignore
+    }
+    setIsAuthenticated(false);
+  };
 
   // Fetch all store data
   const fetchData = useCallback(async () => {
@@ -62,8 +77,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated, fetchData]);
 
   // Quick Stock increment / decrement
   const handleQuickStockChange = async (id: string, delta: number) => {
@@ -102,11 +119,12 @@ export default function Home() {
           onRefresh={fetchData}
           lowStockCount={lowStockCount}
           onOpenLowStock={() => setActiveTab("products")}
+          onLock={handleLock}
         />
 
         {/* Tab Content */}
         <main className="flex-1 overflow-x-hidden">
-          {activeTab === "dashboard" && (
+          {isAuthenticated && activeTab === "dashboard" && (
             <DashboardView
               stats={stats}
               onOpenNewSale={() => setIsNewSaleOpen(true)}
@@ -116,7 +134,7 @@ export default function Home() {
             />
           )}
 
-          {activeTab === "products" && (
+          {isAuthenticated && activeTab === "products" && (
             <ProductsView
               products={products}
               onRefresh={fetchData}
@@ -124,31 +142,35 @@ export default function Home() {
             />
           )}
 
-          {activeTab === "sales" && (
+          {isAuthenticated && activeTab === "sales" && (
             <SalesHistoryView sales={sales} onRefresh={fetchData} />
           )}
         </main>
 
         {/* POS Sale Modal / Bottom Sheet */}
-        <NewSaleModal
-          isOpen={isNewSaleOpen}
-          onClose={() => setIsNewSaleOpen(false)}
-          products={products}
-          onSaleSuccess={() => {
-            fetchData();
-            setActiveTab("dashboard");
-          }}
-        />
+        {isAuthenticated && (
+          <NewSaleModal
+            isOpen={isNewSaleOpen}
+            onClose={() => setIsNewSaleOpen(false)}
+            products={products}
+            onSaleSuccess={() => {
+              fetchData();
+              setActiveTab("dashboard");
+            }}
+          />
+        )}
 
         {/* Bottom Navigation Bar */}
-        <BottomNav
-          activeTab={activeTab}
-          onSelectTab={(tab) => setActiveTab(tab)}
-          onOpenNewSale={() => setIsNewSaleOpen(true)}
-        />
+        {isAuthenticated && (
+          <BottomNav
+            activeTab={activeTab}
+            onSelectTab={(tab) => setActiveTab(tab)}
+            onOpenNewSale={() => setIsNewSaleOpen(true)}
+          />
+        )}
 
         {/* Login Security Modal (if locked) */}
-        {!isAuthenticated && (
+        {!isAuthChecking && !isAuthenticated && (
           <LoginModal
             isOpen={!isAuthenticated}
             onSuccess={() => {
