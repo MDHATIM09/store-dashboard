@@ -498,7 +498,219 @@ export const storeService = {
     return newSale;
   },
 
-  // 7. Get sales history
+  // 7. Update Sale
+  async updateSale(
+    id: string,
+    input: {
+      paymentMode?: "CASH" | "ONLINE";
+      totalAmount?: number;
+      discount?: number;
+      notes?: string;
+      items?: Array<{
+        id?: string;
+        productId?: string;
+        productName: string;
+        quantity: number;
+        unitCostPrice: number;
+        unitSellingPrice: number;
+        subtotal: number;
+      }>;
+    }
+  ): Promise<SaleRecord | null> {
+    const usePrisma = await checkDatabaseConnection();
+    if (usePrisma) {
+      const existing = await prisma.sale.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+      if (!existing) return null;
+
+      return await prisma.$transaction(async (tx: any) => {
+        let totalCost = existing.totalCost;
+
+        if (input.items && Array.isArray(input.items)) {
+          // 1. Restore old quantities
+          for (const oldIt of existing.items) {
+            if (oldIt.productId) {
+              await tx.product.update({
+                where: { id: oldIt.productId },
+                data: { stock: { increment: oldIt.quantity } },
+              });
+            }
+          }
+
+          // 2. Deduct new quantities
+          for (const newIt of input.items) {
+            if (newIt.productId) {
+              await tx.product.update({
+                where: { id: newIt.productId },
+                data: { stock: { decrement: newIt.quantity } },
+              });
+            }
+          }
+
+          // 3. Delete old items and recreate new items
+          await tx.saleItem.deleteMany({ where: { saleId: id } });
+          await tx.saleItem.createMany({
+            data: input.items.map((it) => ({
+              saleId: id,
+              productId: it.productId || null,
+              productName: it.productName,
+              quantity: it.quantity,
+              unitCostPrice: it.unitCostPrice,
+              unitSellingPrice: it.unitSellingPrice,
+              subtotal: it.unitSellingPrice * it.quantity,
+            })),
+          });
+
+          totalCost = input.items.reduce(
+            (acc, it) => acc + it.unitCostPrice * it.quantity,
+            0
+          );
+        }
+
+        const finalAmount =
+          input.totalAmount !== undefined
+            ? Number(input.totalAmount)
+            : existing.totalAmount;
+        const discount =
+          input.discount !== undefined
+            ? Number(input.discount)
+            : existing.discount;
+        const profit = finalAmount - totalCost;
+
+        const updated = await tx.sale.update({
+          where: { id },
+          data: {
+            totalAmount: finalAmount,
+            totalCost,
+            profit,
+            discount,
+            ...(input.paymentMode && { paymentMode: input.paymentMode }),
+            ...(input.notes !== undefined && { notes: input.notes }),
+          },
+          include: { items: true },
+        });
+
+        return {
+          id: updated.id,
+          totalAmount: updated.totalAmount,
+          totalCost: updated.totalCost,
+          profit: updated.profit,
+          discount: updated.discount,
+          paymentMode: updated.paymentMode as "CASH" | "ONLINE",
+          notes: updated.notes || undefined,
+          createdAt: updated.createdAt.toISOString(),
+          items: updated.items.map((it: any) => ({
+            id: it.id,
+            productId: it.productId || undefined,
+            productName: it.productName,
+            quantity: it.quantity,
+            unitCostPrice: it.unitCostPrice,
+            unitSellingPrice: it.unitSellingPrice,
+            subtotal: it.subtotal,
+          })),
+        };
+      });
+    }
+
+    // Local file fallback
+    const data = ensureLocalFile();
+    const idx = data.sales.findIndex((s) => s.id === id);
+    if (idx === -1) return null;
+    const existing = data.sales[idx];
+
+    let itemsToSave = existing.items;
+    let totalCost = existing.totalCost;
+
+    if (input.items && Array.isArray(input.items)) {
+      for (const oldIt of existing.items) {
+        const prod = data.products.find((p) => p.id === oldIt.productId);
+        if (prod) prod.stock += oldIt.quantity;
+      }
+      for (const newIt of input.items) {
+        const prod = data.products.find((p) => p.id === newIt.productId);
+        if (prod) prod.stock = Math.max(0, prod.stock - newIt.quantity);
+      }
+      itemsToSave = input.items.map((it, i) => ({
+        id: it.id || `item_${id}_${i}`,
+        productId: it.productId,
+        productName: it.productName,
+        quantity: it.quantity,
+        unitCostPrice: it.unitCostPrice,
+        unitSellingPrice: it.unitSellingPrice,
+        subtotal: it.unitSellingPrice * it.quantity,
+      }));
+      totalCost = itemsToSave.reduce(
+        (acc, it) => acc + it.unitCostPrice * it.quantity,
+        0
+      );
+    }
+
+    const finalAmount =
+      input.totalAmount !== undefined
+        ? Number(input.totalAmount)
+        : existing.totalAmount;
+    const discount =
+      input.discount !== undefined
+        ? Number(input.discount)
+        : existing.discount;
+    const profit = finalAmount - totalCost;
+
+    data.sales[idx] = {
+      ...existing,
+      totalAmount: finalAmount,
+      totalCost,
+      profit,
+      discount,
+      paymentMode: input.paymentMode || existing.paymentMode,
+      notes: input.notes !== undefined ? input.notes : existing.notes,
+      items: itemsToSave,
+    };
+    saveLocalData(data);
+    return data.sales[idx];
+  },
+
+  // 8. Delete Sale (restores product inventory)
+  async deleteSale(id: string): Promise<boolean> {
+    const usePrisma = await checkDatabaseConnection();
+    if (usePrisma) {
+      const sale = await prisma.sale.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+      if (!sale) return false;
+
+      await prisma.$transaction(async (tx: any) => {
+        for (const it of sale.items) {
+          if (it.productId) {
+            await tx.product.update({
+              where: { id: it.productId },
+              data: { stock: { increment: it.quantity } },
+            });
+          }
+        }
+        await tx.sale.delete({ where: { id } });
+      });
+      return true;
+    }
+
+    const data = ensureLocalFile();
+    const idx = data.sales.findIndex((s) => s.id === id);
+    if (idx === -1) return false;
+    const sale = data.sales[idx];
+
+    for (const it of sale.items) {
+      const prod = data.products.find((p) => p.id === it.productId);
+      if (prod) prod.stock += it.quantity;
+    }
+
+    data.sales.splice(idx, 1);
+    saveLocalData(data);
+    return true;
+  },
+
+  // 9. Get sales history
   async getSales(filter?: "today" | "week" | "month" | "all"): Promise<SaleRecord[]> {
     const usePrisma = await checkDatabaseConnection();
     const now = new Date();

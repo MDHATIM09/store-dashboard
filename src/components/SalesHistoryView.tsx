@@ -9,8 +9,10 @@ import {
   CreditCard,
   ChevronDown,
   TrendingUp,
+  Edit3,
 } from "lucide-react";
 import { SaleRecord } from "@/lib/storeService";
+import EditSaleModal from "./EditSaleModal";
 
 interface SalesHistoryViewProps {
   sales: SaleRecord[];
@@ -19,10 +21,12 @@ interface SalesHistoryViewProps {
 
 export default function SalesHistoryView({
   sales,
+  onRefresh,
 }: SalesHistoryViewProps) {
   const [filter, setFilter] = useState<"today" | "week" | "month" | "all">("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedSaleId, setExpandedSaleId] = useState<string | null>(null);
+  const [editingSale, setEditingSale] = useState<SaleRecord | null>(null);
 
   // Filtered sales
   const filteredSales = useMemo(() => {
@@ -183,7 +187,7 @@ export default function SalesHistoryView({
             return (
               <div
                 key={sale.id}
-                className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-xs transition-all"
+                className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-xs transition-all hover:border-slate-300"
               >
                 {/* Main Row */}
                 <div
@@ -234,6 +238,20 @@ export default function SalesHistoryView({
                         +₹{sale.profit}
                       </span>
                     </div>
+
+                    {/* Edit Quick Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingSale(sale);
+                      }}
+                      className="p-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 hover:text-[#0f766e] text-slate-500 border border-slate-200 active:scale-90 transition-all ml-1"
+                      title="Edit Sale / Bill"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+
                     <ChevronDown
                       className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? "rotate-180" : ""
                         }`}
@@ -272,6 +290,23 @@ export default function SalesHistoryView({
                         Net Profit: ₹{sale.profit}
                       </span>
                     </div>
+
+                    {sale.notes && (
+                      <p className="text-[11px] text-slate-500 italic bg-amber-50/50 p-2 rounded-lg border border-amber-100/60">
+                        Note: {sale.notes}
+                      </p>
+                    )}
+
+                    <div className="pt-2 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setEditingSale(sale)}
+                        className="px-3 py-1.5 rounded-xl bg-[#0f766e] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs hover:bg-[#115e59] active:scale-95 transition-all"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Edit Bill Details</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -279,7 +314,16 @@ export default function SalesHistoryView({
           })
         )}
       </div>
+
+      {/* Edit Sale Modal */}
+      {editingSale && (
+        <EditSaleModal
+          sale={editingSale}
+          isOpen={!!editingSale}
+          onClose={() => setEditingSale(null)}
+          onSuccess={onRefresh}
+        />
+      )}
     </div>
   );
 }
-
