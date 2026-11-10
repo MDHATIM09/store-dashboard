@@ -1,0 +1,62 @@
+// Prisma Schema for Store Management & POS Dashboard
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id                String      @id @default(cuid())
+  name              String
+  costPrice         Float       @default(0.0)
+  sellingPrice      Float       @default(0.0)
+  stock             Int         @default(0)
+  lowStockThreshold Int         @default(3)
+  category          String?     @default("General")
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  saleItems         SaleItem[]
+
+  @@index([name])
+}
+
+model Sale {
+  id          String      @id @default(cuid())
+  totalAmount Float       // Final received amount
+  totalCost   Float       // Sum of (costPrice * qty)
+  profit      Float       // totalAmount - totalCost
+  discount    Float       @default(0.0)
+  paymentMode String      @default("CASH") // "CASH" or "ONLINE"
+  notes       String?
+  createdAt   DateTime    @default(now())
+  items       SaleItem[]
+
+  @@index([createdAt])
+  @@index([paymentMode])
+}
+
+model SaleItem {
+  id               String   @id @default(cuid())
+  saleId           String
+  sale             Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId        String?
+  product          Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName      String
+  quantity         Int
+  unitCostPrice    Float
+  unitSellingPrice Float
+  subtotal         Float
+}
+
+model StoreSetting {
+  id              String   @id @default("default")
+  storeName       String   @default("Apna Store")
+  adminPin        String   @default("1234")
+  lowStockDefault Int      @default(3)
+  updatedAt       DateTime @updatedAt
+}
+

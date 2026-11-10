@@ -1,0 +1,164 @@
+{
+  "products": [
+    {
+      "id": "p1",
+      "name": "Tata Tea Gold (500g)",
+      "costPrice": 220,
+      "sellingPrice": 260,
+      "stock": 14,
+      "lowStockThreshold": 4,
+      "category": "Grocery",
+      "createdAt": "2026-11-09T10:00:00.000Z",
+      "updatedAt": "2026-11-09T10:00:00.000Z"
+    },
+    {
+      "id": "p2",
+      "name": "Fortune Sunflower Oil (1L)",
+      "costPrice": 115,
+      "sellingPrice": 135,
+      "stock": 18,
+      "lowStockThreshold": 4,
+      "category": "Grocery",
+      "createdAt": "2026-11-09T10:00:00.000Z",
+      "updatedAt": "2026-11-09T12:18:17.284Z"
+    },
+    {
+      "id": "p3",
+      "name": "Maggi 2-Minute Noodles (Pack of 4)",
+      "costPrice": 42,
+      "sellingPrice": 50,
+      "stock": 15,
+      "lowStockThreshold": 4,
+      "category": "Snacks",
+      "createdAt": "2026-11-09T10:00:00.000Z",
+      "updatedAt": "2026-11-10T07:02:42.270Z"
+    },
+    {
+      "id": "p4",
+      "name": "Surf Excel Detergent Bar (200g)",
+      "costPrice": 28,
+      "sellingPrice": 35,
+      "stock": 8,
+      "lowStockThreshold": 4,
+      "category": "Cleaning",
+      "createdAt": "2026-11-09T10:00:00.000Z",
+      "updatedAt": "2026-11-10T07:02:55.685Z"
+    },
+    {
+      "id": "p5",
+      "name": "Britannia Good Day Butter (100g)",
+      "costPrice": 18,
+      "sellingPrice": 25,
+      "stock": 20,
+      "lowStockThreshold": 5,
+      "category": "Biscuits",
+      "createdAt": "2026-11-09T10:00:00.000Z",
+      "updatedAt": "2026-11-09T10:00:00.000Z"
+    },
+    {
+      "id": "p6",
+      "name": "Lakmé Eyeconic Kajal (Deep Black)",
+      "costPrice": 140,
+      "sellingPrice": 185,
+      "stock": 15,
+      "lowStockThreshold": 5,
+      "category": "Cosmetics",
+      "createdAt": "2026-11-09T10:00:00.000Z",
+      "updatedAt": "2026-11-09T10:00:00.000Z"
+    },
+    {
+      "id": "p7",
+      "name": "Maybelline Fit Me Matte Foundation (30ml)",
+      "costPrice": 420,
+      "sellingPrice": 549,
+      "stock": 5,
+      "lowStockThreshold": 3,
+      "category": "Cosmetics",
+      "createdAt": "2026-11-09T10:00:00.000Z",
+      "updatedAt": "2026-11-09T12:29:02.683Z"
+    },
+    {
+      "id": "p8",
+      "name": "Nivea Soft Light Moisturizer (100ml)",
+      "costPrice": 160,
+      "sellingPrice": 210,
+      "stock": 7,
+      "lowStockThreshold": 4,
+      "category": "Cosmetics",
+      "createdAt": "2026-11-09T10:00:00.000Z",
+      "updatedAt": "2026-11-10T07:02:28.556Z"
+    },
+    {
+      "id": "p9",
+      "name": "Pond's Bright Beauty Face Wash (100g)",
+      "costPrice": 95,
+      "sellingPrice": 135,
+      "stock": 18,
+      "lowStockThreshold": 5,
+      "category": "Cosmetics",
+      "createdAt": "2026-11-09T10:00:00.000Z",
+      "updatedAt": "2026-11-09T10:00:00.000Z"
+    }
+  ],
+  "sales": [
+    {
+      "id": "sale_1794227342683",
+      "totalAmount": 1710,
+      "totalCost": 1344,
+      "profit": 366,
+      "discount": 37,
+      "paymentMode": "CASH",
+      "createdAt": "2026-11-09T12:29:02.683Z",
+      "items": [
+        {
+          "id": "item_sale_1794227342683_0",
+          "productId": "p3",
+          "productName": "Maggi 2-Minute Noodles (Pack of 4)",
+          "quantity": 2,
+          "unitCostPrice": 42,
+          "unitSellingPrice": 50,
+          "subtotal": 100
+        },
+        {
+          "id": "item_sale_1794227342683_1",
+          "productId": "p7",
+          "productName": "Maybelline Fit Me Matte Foundation (30ml)",
+          "quantity": 3,
+          "unitCostPrice": 420,
+          "unitSellingPrice": 549,
+          "subtotal": 1647
+        }
+      ]
+    },
+    {
+      "id": "sale_demo_1",
+      "totalAmount": 734,
+      "totalCost": 560,
+      "profit": 174,
+      "discount": 0,
+      "paymentMode": "ONLINE",
+      "notes": "Cosmetics combo purchase",
+      "createdAt": "2026-11-09T11:30:00.000Z",
+      "items": [
+        {
+          "id": "item_1",
+          "productId": "p6",
+          "productName": "Lakmé Eyeconic Kajal (Deep Black)",
+          "quantity": 1,
+          "unitCostPrice": 140,
+          "unitSellingPrice": 185,
+          "subtotal": 185
+        },
+        {
+          "id": "item_2",
+          "productId": "p7",
+          "productName": "Maybelline Fit Me Matte Foundation (30ml)",
+          "quantity": 1,
+          "unitCostPrice": 420,
+          "unitSellingPrice": 549,
+          "subtotal": 549
+        }
+      ]
+    }
+  ]
+}

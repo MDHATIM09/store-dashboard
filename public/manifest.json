@@ -1,0 +1,16 @@
+{
+  "name": "Store Management & POS",
+  "short_name": "Store POS",
+  "description": "Store Inventory, Billing Counter and Profit/Loss Dashboard",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f766e",
+  "theme_color": "#0f766e",
+  "icons": [
+    {
+      "src": "/store-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="100" fill="#0f766e" />
+  <g fill="none" stroke="#ffffff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" transform="translate(64, 64)">
+    <!-- Store Front Roof -->
+    <path d="M32 96 L192 32 L352 96 L32 96 Z" fill="#10b981" />
+    <path d="M32 96 L32 144 C32 166 50 184 72 184 C94 184 112 166 112 144 C112 166 130 184 152 184 C174 184 192 166 192 144 C192 166 210 184 232 184 C254 184 272 166 272 144 C272 166 290 184 312 184 C334 184 352 166 352 144 L352 96" fill="#10b981" />
+    <!-- Shop Walls & Door -->
+    <path d="M48 184 L48 352 L336 352 L336 184" />
+    <path d="M144 352 L144 240 L240 240 L240 352" fill="#ffffff" fill-opacity="0.1" />
+    <!-- Window Display -->
+    <rect x="68" y="240" width="48" height="48" rx="6" />
+    <rect x="268" y="240" width="48" height="48" rx="6" />
+  </g>
+</svg>
+
