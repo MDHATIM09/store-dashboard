@@ -15,7 +15,7 @@ interface HeaderProps {
 export default function Header({
   onRefresh,
   isRefreshing,
-  storeName = "Apna Store",
+  storeName = "Parilok Store",
   lowStockCount,
   onOpenLowStock,
   onLock,

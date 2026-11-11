@@ -114,7 +114,7 @@ export default function Home() {
       <div className="w-full max-w-md mx-auto min-h-screen bg-[#f8fafc] shadow-2xl flex flex-col relative border-x border-slate-200">
         {/* Header */}
         <Header
-          storeName="Apna Store"
+          storeName="Parilok Store"
           isRefreshing={isRefreshing}
           onRefresh={fetchData}
           lowStockCount={lowStockCount}
